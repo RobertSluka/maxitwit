@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          target: 'production'
+          target: 'dev'
           file: ./Dockerfile.app
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/maxitwitserver:latest
@@ -48,7 +48,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile.api
-          target: 'production'
+          target: 'dev'
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/maxitwitapi:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwitapi:apibuildcache
