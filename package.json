@@ -1,0 +1,58 @@
+{
+  "name": "maxitwit",
+  "version": "1.2.1",
+  "private": true,
+  "scripts": {
+    "start": "node src/bin/www",
+    "devstart": "nodemon src/bin/www",
+    "lint:fix": "eslint --fix .",
+    "lint": "eslint .",
+    "cz": "cz",
+    "docker": "docker-compose up --build",
+    "prepare": "husky",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.2",
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "connect-sqlite3": "^0.9.13",
+    "cookie-parser": "~1.4.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.0.1",
+    "http-errors": "~1.6.3",
+    "pug": "^3.0.2",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "18.6.1",
+    "@commitlint/config-conventional": "18.6.2",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "debug": "~2.6.9",
+    "eslint": "^8.56.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "morgan": "~1.9.1",
+    "nodemon": "^3.0.3",
+    "npx": "^10.2.2",
+    "prisma": "^5.10.2",
+    "standard-version": "^9.5.0",
+    "superagent": "^8.1.2"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "optionalDependencies": {
+    "husky": "^9.0.11"
+  }
+}
