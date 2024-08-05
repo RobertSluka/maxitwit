@@ -1,0 +1,117 @@
+# Name of the workflow
+name: Continuous Deployment
+
+# This workflow is triggered on push to the main branch
+on:
+  push:
+    branches:
+      - master
+
+# Jobs to be run
+jobs:
+  # First job is to build the Docker images
+  build:
+    # This job runs on the latest version of Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Login to Docker Hub using the secrets stored in the repository settings
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Set up Docker Buildx for building multi-platform images
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # Build and push the maxitwit server Docker image
+      - name: Build and push maxitwit server
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          target: 'production'
+          file: ./Dockerfile.app
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/maxitwitserver:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwitserver:serverbuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwitserver:serverbuildcache,mode=max
+
+      # Build and push the minitwit api Docker image
+      - name: Build and push minitwit api
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile.api
+          target: 'production'
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/maxitwitapi:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwitapi:apibuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwitapi:apibuildcache,mode=max
+
+      # Build and push the minitwit test Docker image
+      - name: Build and push minitwit test
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile.test
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/maxitwittest:latest
+          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwittest:testbuildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwittest:testbuildcache,mode=max
+
+      # # Build and push the fluentd Docker image
+      # - name: Build and push fluentd image
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile.fluentd
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_USERNAME }}/fluentd:latest
+      #     cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/fluentd:testbuildcache
+      #     cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/fluentd:testbuildcache,mode=max
+
+      # # Run Snyk to check Docker image for vulnerabilities
+      # - name: Run Snyk to check Docker image for vulnerabilities
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   run: snyk container test ${{ secrets.DOCKER_USERNAME }}/my-image || echo "Snyk found vulnerabilities in Docker image!"
+
+  # Second job is to deploy the Docker images to the server
+  deploy:
+    # This job runs on the latest version of Ubuntu
+    runs-on: ubuntu-latest
+    # This job needs the build job to complete successfully before it can run
+    needs: build
+
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Configure SSH for deployment
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+
+      # Deploy the Docker images to the server
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+          "docker pull ${{ secrets.DOCKER_USERNAME }}/maxitwitserver:latest && \
+           docker stop maxitwitserver || true && \
+           docker rm maxitwitserver || true && \
+           docker run -d --name maxitwitserver -p 80:80 ${{ secrets.DOCKER_USERNAME }}/maxitwitserver:latest"
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
