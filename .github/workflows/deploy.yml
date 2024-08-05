@@ -54,16 +54,16 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwitapi:apibuildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwitapi:apibuildcache,mode=max
 
-      # Build and push the minitwit test Docker image
-      - name: Build and push minitwit test
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: ./Dockerfile.test
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/maxitwittest:latest
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwittest:testbuildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwittest:testbuildcache,mode=max
+      # # Build and push the minitwit test Docker image
+      # - name: Build and push minitwit test
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile.test
+      #     push: true
+      #     tags: ${{ secrets.DOCKER_USERNAME }}/maxitwittest:latest
+      #     cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwittest:testbuildcache
+      #     cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/maxitwittest:testbuildcache,mode=max
 
       # # Build and push the fluentd Docker image
       # - name: Build and push fluentd image
