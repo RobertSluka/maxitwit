@@ -106,11 +106,12 @@ jobs:
       # Deploy the Docker images to the server
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+          ssh -vvv -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
           "docker pull ${{ secrets.DOCKER_USERNAME }}/maxitwitserver:latest && \
            docker stop maxitwitserver || true && \
            docker rm maxitwitserver || true && \
            docker run -d --name maxitwitserver -p 80:80 ${{ secrets.DOCKER_USERNAME }}/maxitwitserver:latest"
+           echo 'Deployment completed successfully'"
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
