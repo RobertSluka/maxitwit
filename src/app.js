@@ -39,6 +39,10 @@ const app = express()
 app.set('views', path.join(__dirname, 'views')) // Specifies the directory where the Jade template files are located
 app.set('view engine', 'pug') // Sets Jade (now Pug) as the template engine for rendering views
 
+// Metrics services to monitor and count http requests and errors
+const { httpErrorsCounter, httpRequestsCounter, httpRequestDurationMilliseconds, register } = require('./services/metrics.js')
+
+
 // Middleware setup
 // middleware only used during development
 if (process.env.NODE_ENV === 'development') {
@@ -67,9 +71,20 @@ app.use(session({
 
 app.use(flash())
 
+// Middleware to monitor http request duration, count and errors
 app.use((req, res, next) => {
-  res.locals.success_messages = req.flash('success')
-  res.locals.error_messages = req.flash('error')
+  const start = Date.now()
+  const send = res.send
+  res.send = function (string) {
+    const duration = Date.now() - start
+    httpRequestDurationMilliseconds.observe(duration)
+    const body = string instanceof Buffer ? string.toString() : string
+    httpRequestsCounter.inc()
+    if (res.statusCode >= 400) {
+      httpErrorsCounter.inc()
+    }
+    send.call(this, body)
+  }
   next()
 })
 
@@ -94,5 +109,10 @@ app.use((err, req, res, next) => {
   res.render('error') // Uses the view engine to render the error page
 })
 
+// Define route for the '/metrics' endpoint
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType) // Set contentType of response to be compatible with Prometheus
+  res.end(await register.metrics()) // End response and send the metrics
+})
 // Export the app for use by other modules (like the server starter script)
 module.exports = app

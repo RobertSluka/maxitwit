@@ -6,7 +6,7 @@ ARG NODE_VERSION=21.6.2
 FROM node:${NODE_VERSION}-alpine as base
 
 # Expose the port that the application listens on.
-EXPOSE 3003
+EXPOSE 3000
 
 WORKDIR /usr/src/app
 

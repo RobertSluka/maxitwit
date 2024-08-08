@@ -1,0 +1,17 @@
+FROM python:3.12.1-alpine
+
+RUN mkdir /maxitwit-tests
+
+WORKDIR .
+
+COPY /tests/conftest.py /maxitwit-tests/
+COPY /tests/maxitwit_test.py /maxitwit-tests/
+COPY /tests/test_requirements.txt /maxitwit-tests/
+
+WORKDIR /maxitwit-tests
+# Install necessary packages
+RUN pip install -r test_requirements.txt
+
+EXPOSE 3002
+
+ENTRYPOINT ["pytest", "maxitwit_test.py", "--force", "--container"]
