@@ -3,6 +3,10 @@ const client = require('prom-client')
 // Create a new Prometheus registry for tracking all metrics
 const register = new client.Registry()
 
+// Collect default metrics (like CPU, memory, etc.)
+client.collectDefaultMetrics({ register });
+
+// Custom metrics
 const httpErrorsCounter = new client.Counter({
   name: 'http_errors_total',
   help: 'Total HTTP errors'

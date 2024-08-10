@@ -16,6 +16,10 @@ const flash = require('connect-flash')
 // Initialize database schema
 const database = require('../db/database')
 
+// Logging setup
+const morgan = require('morgan') // Logging middleware for http requests
+const logger = require('./services/logger.js') // Logger service for structured logging
+
 if (process.env.MIGRATE === '0') {
   database.initSchema()
     .then(() => {
@@ -41,7 +45,6 @@ app.set('view engine', 'pug') // Sets Jade (now Pug) as the template engine for 
 
 // Metrics services to monitor and count http requests and errors
 const { httpErrorsCounter, httpRequestsCounter, httpRequestDurationMilliseconds, register } = require('./services/metrics.js')
-
 
 // Middleware setup
 // middleware only used during development
@@ -70,6 +73,17 @@ app.use(session({
 }))
 
 app.use(flash())
+
+
+// Flash middlewhere to add flash messages to the response local variables
+app.use((req, res, next) => {
+  res.locals.success_messages = req.flash('success')
+  res.locals.error_messages = req.flash('error')
+  next()
+})
+
+// Morgan middleware to log http requests
+app.use(morgan('combined', { stream: { write: message => logger.info(message) } }))
 
 // Middleware to monitor http request duration, count and errors
 app.use((req, res, next) => {
@@ -111,8 +125,13 @@ app.use((err, req, res, next) => {
 
 // Define route for the '/metrics' endpoint
 app.get('/metrics', async (req, res) => {
-  res.set('Content-Type', register.contentType) // Set contentType of response to be compatible with Prometheus
-  res.end(await register.metrics()) // End response and send the metrics
-})
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (err) {
+    console.error('Error while serving /metrics:', err);
+    res.status(500).send('An error occurred while fetching metrics');
+  }
+});
 // Export the app for use by other modules (like the server starter script)
 module.exports = app

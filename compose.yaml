@@ -46,5 +46,29 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
 
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+      POSTGRES_DB: localdb
+      PGPORT: 9998
+    ports:
+      - 9998:9998
+      
+  fluentd:
+    container_name: fluentd
+    user: root
+    build:
+      dockerfile: Dockerfile.fluentd
+    volumes:
+      - ./conf/fluentd.conf:/fluentd/etc/fluent.conf
+    logging:
+      driver: "local"
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+
 volumes:
   grafana_data:
