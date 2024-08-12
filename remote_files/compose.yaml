@@ -1,0 +1,79 @@
+services:
+ server:
+   image: ${DOCKER_USERNAME}/maxitwitserver
+   ports:
+     - 3000:3000
+   environment:
+     - HUSKY=0
+     - DATABASE_URL=${DATABASE_URL}
+     - SESSION_SECRET=${SESSION_SECRET}
+   links:
+     - fluentd
+   logging:
+     driver: "fluentd"
+     options:
+       fluentd-address: fluentd:24224
+       tag: frontend.access
+
+
+   restart: always
+   deploy:
+     mode: replicated
+     replicas: 3
+     restart_policy:
+       condition: on-failure
+       delay: 5s
+       max_attempts: 2
+       window: 120s
+     update_config:
+       parallelism: 1
+       delay: 10s
+       monitor: 10s
+  
+
+
+ api:
+   image: ${DOCKER_USERNAME}/maxitwitapi
+   ports:
+     - 3001:3001
+   environment:
+     - HUSKY=0
+     - DATABASE_URL=${DATABASE_URL}
+     - SESSION_SECRET=${SESSION_SECRET}
+   links:
+     - fluentd
+   logging:
+     driver: "fluentd"
+     options:
+       fluentd-address: fluentd:24224
+       tag: api.access
+
+
+   restart: always
+   deploy:
+     mode: replicated
+     replicas: 6
+     restart_policy:
+       condition: on-failure
+       delay: 5s
+       max_attempts: 2
+       window: 120s
+     update_config:
+       parallelism: 2
+       delay: 10s
+       monitor: 10s
+  
+
+
+ fluentd:
+   user: root
+   image: ${DOCKER_USERNAME}/fluentd
+   volumes:
+     - /logs:/fluentd/log
+   logging:
+     driver: "local"
+   ports:
+     - 24224:24224
+     - 24224:24224/udp
+   deploy:
+     mode: global
