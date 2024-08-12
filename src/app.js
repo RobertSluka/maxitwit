@@ -74,7 +74,6 @@ app.use(session({
 
 app.use(flash())
 
-
 // Flash middlewhere to add flash messages to the response local variables
 app.use((req, res, next) => {
   res.locals.success_messages = req.flash('success')
@@ -126,12 +125,12 @@ app.use((err, req, res, next) => {
 // Define route for the '/metrics' endpoint
 app.get('/metrics', async (req, res) => {
   try {
-    res.set('Content-Type', register.contentType);
-    res.end(await register.metrics());
+    res.set('Content-Type', register.contentType)
+    res.end(await register.metrics())
   } catch (err) {
-    console.error('Error while serving /metrics:', err);
-    res.status(500).send('An error occurred while fetching metrics');
+    console.error('Error while serving /metrics:', err)
+    res.status(500).send('An error occurred while fetching metrics')
   }
-});
+})
 // Export the app for use by other modules (like the server starter script)
 module.exports = app

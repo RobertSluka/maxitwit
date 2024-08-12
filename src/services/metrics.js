@@ -4,7 +4,7 @@ const client = require('prom-client')
 const register = new client.Registry()
 
 // Collect default metrics (like CPU, memory, etc.)
-client.collectDefaultMetrics({ register });
+client.collectDefaultMetrics({ register })
 
 // Custom metrics
 const httpErrorsCounter = new client.Counter({
