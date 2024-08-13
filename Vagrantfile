@@ -31,7 +31,9 @@ Vagrant.configure("2") do |config|
     server.vm.provision "shell", inline: 'echo "export DOCKER_USERNAME=' + "'" + ENV["DOCKER_USERNAME"] + "'" + '" >> ~/.bash_profile'
     server.vm.provision "shell", inline: 'echo "export DOCKER_PASSWORD=' + "'" + ENV["DOCKER_PASSWORD"] + "'" + '" >> ~/.bash_profile'
     server.vm.provision "shell", inline: 'echo "export DIGITAL_OCEAN_TOKEN=' + "'" + ENV["DIGITAL_OCEAN_TOKEN"] + "'" + '" >> ~/.bash_profile'
+    server.vm.provision "shell", inline: 'echo "export SSH_PUBLIC_KEY=' + "'" + ENV["SSH_PUBLIC_KEY"] + "'" + '" >> ~/.bash_profile'
     server.vm.provision "shell", inline: <<-SHELL
+
     sudo apt-get update
     # The following address an issue in DO's Ubuntu images, which still contain a lock file
     sudo killall apt apt-get
@@ -138,14 +140,17 @@ Vagrant.configure("2") do |config|
  export DROPLETS_API="https://api.digitalocean.com/v2/droplets"
  export BEARER_AUTH_TOKEN="Authorization: Bearer $DIGITAL_OCEAN_TOKEN"
  export JSON_CONTENT="Content-Type: application/json"
+
  CONFIG='{"name":"swarm-manager","tags":["demo"],
   "size":"s-1vcpu-1gb", "image":"docker-20-04",
   "ssh_keys":["69:d8:8a:dc:08:c7:0d:a5:5d:7d:3d:de:91:ae:f0:c7"]}'
+
  SWARM_MANAGER_ID=$(curl -X POST "$DROPLETS_API" -d "$CONFIG"\
   -H "$BEARER_AUTH_TOKEN" -H "$JSON_CONTENT"\
   | jq -r .droplet.id ) && sleep 5 && echo $SWARM_MANAGER_ID
  export JQFILTER='.droplets | .[] | select (.name == "swarm-manager")
  | .networks.v4 | .[]| select (.type == "public") | .ip_address'
+ 
  SWARM_MANAGER_IP=$(curl -s GET "$DROPLETS_API"\
   -H "$BEARER_AUTH_TOKEN" -H "$JSON_CONTENT"\
   | jq -r "$JQFILTER") && echo "SWARM_MANAGER_IP=$SWARM_MANAGER_IP"
@@ -174,7 +179,11 @@ Vagrant.configure("2") do |config|
     && echo "WORKER1_IP=$WORKER1_IP"
  
  
-      # Commenting
+  
+      
+# "      This command is making a POST request to the DigitalOcean API to create a new droplet 
+with the specified parameters (name, tags, region, size, image, ssh_keys)."
+
   WORKER2_ID=$(curl -X POST "$DROPLETS_API"\
   -d'{"name":"worker2","tags":["demo"],"region":"fra1",
   "size":"s-1vcpu-1gb","image":"docker-20-04",
@@ -185,12 +194,11 @@ Vagrant.configure("2") do |config|
  
  
  
- 
+  # This command is defining a jq filter that will be used to extract the public IP address of the droplet from the API response.
  export JQFILTER='.droplets | .[] | select (.name == "worker2") | .networks.v4 | .[]| select (.type == "public") | .ip_address'
  
  
- 
- 
+#  This command is making a GET request to the DigitalOcean API to retrieve information about all droplets. 
  WORKER2_IP=$(curl -s GET "$DROPLETS_API"\
  -H "$BEARER_AUTH_TOKEN" -H "$JSON_CONTENT"\
  | jq -r "$JQFILTER")\

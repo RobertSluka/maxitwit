@@ -1,5 +1,5 @@
 const winston = require('winston')
-const { createLogger, format } = winston
+const { createLogger, format, transports } = winston
 const FluentTransport = require('fluent-logger').support.winstonTransport()
 
 // Create a Winston logger
@@ -14,8 +14,9 @@ const logger = createLogger({
       port: 24224,
       timeout: 3.0,
       reconnectInterval: 600000 // 10 minutes
-    })
+    }),
+    new transports.Console() // Now this line is correct
   ]
 })
-// Create a Winston logger
+
 module.exports = logger

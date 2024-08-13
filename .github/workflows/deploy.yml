@@ -76,11 +76,11 @@ jobs:
       #     cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/fluentd:testbuildcache
       #     cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/fluentd:testbuildcache,mode=max
 
-      # # Run Snyk to check Docker image for vulnerabilities
-      # - name: Run Snyk to check Docker image for vulnerabilities
-      #   env:
-      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      #   run: snyk container test ${{ secrets.DOCKER_USERNAME }}/my-image || echo "Snyk found vulnerabilities in Docker image!"
+      # Run Snyk to check Docker image for vulnerabilities
+      - name: Run Snyk to check Docker image for vulnerabilities
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk container test ${{ secrets.DOCKER_USERNAME }}/my-image || echo "Snyk found vulnerabilities in Docker image!"
 
   # Second job is to deploy the Docker images to the server
   deploy:
