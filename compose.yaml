@@ -45,7 +45,7 @@ services:
       - '3002:3000'
     volumes:
       - grafana_data:/var/lib/grafana
-
+  # fluentd:
   postgres:
     image: postgres:latest
     container_name: postgres
