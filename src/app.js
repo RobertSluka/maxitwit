@@ -16,8 +16,6 @@ const flash = require('connect-flash')
 // Initialize database schema
 const database = require('../db/database')
 
-
-
 if (process.env.MIGRATE === '0') {
   database.initSchema()
     .then(() => {
@@ -75,7 +73,6 @@ app.use((req, res, next) => {
   res.locals.error_messages = req.flash('error')
   next()
 })
-
 
 // Middleware to monitor http request duration, count and errors
 app.use((req, res, next) => {

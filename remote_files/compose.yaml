@@ -63,17 +63,3 @@ services:
        delay: 10s
        monitor: 10s
   
-
-
- fluentd:
-   user: root
-   image: ${DOCKER_USERNAME}/fluentd
-   volumes:
-     - /logs:/fluentd/log
-   logging:
-     driver: "local"
-   ports:
-     - 24224:24224
-     - 24224:24224/udp
-   deploy:
-     mode: global
