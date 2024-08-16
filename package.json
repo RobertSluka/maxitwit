@@ -20,7 +20,7 @@
     "simulator": "python3 src/api/minitwit_simulator.py http://localhost:3001"
   },
   "dependencies": {
-    "@prisma/client": "^5.11.0",
+    "@prisma/client": "^5.17.0",
     "bcrypt": "^5.1.1",
     "connect-flash": "^0.1.1",
     "connect-sqlite3": "^0.9.13",
