@@ -16,9 +16,7 @@ const flash = require('connect-flash')
 // Initialize database schema
 const database = require('../db/database')
 
-// Logging setup
-const morgan = require('morgan') // Logging middleware for http requests
-const logger = require('./services/logger.js') // Logger service for structured logging
+
 
 if (process.env.MIGRATE === '0') {
   database.initSchema()
@@ -48,10 +46,7 @@ const { httpErrorsCounter, httpRequestsCounter, httpRequestDurationMilliseconds,
 
 // Middleware setup
 // middleware only used during development
-if (process.env.NODE_ENV === 'development') {
-  const logger = require('morgan') // http request logger middleware for node.js
-  app.use(logger('dev')) // Use Morgan to log requests to the console in 'dev' format, which includes method, url, status, response time
-}
+
 // middleware for use in production environment
 app.use(express.json()) // Parses incoming requests with JSON payloads, making it easy to handle JSON data
 app.use(express.urlencoded({ extended: false })) // Parses incoming requests with URL-encoded payloads, useful for form submissions
@@ -81,8 +76,6 @@ app.use((req, res, next) => {
   next()
 })
 
-// Morgan middleware to log http requests
-app.use(morgan('combined', { stream: { write: message => logger.info(message) } }))
 
 // Middleware to monitor http request duration, count and errors
 app.use((req, res, next) => {
