@@ -32,7 +32,7 @@
     "fluent-logger": "^3.4.1",
     "morgan": "^1.10.0",
     "pug": "^3.0.2",
-    "winston": "^3.13.0",
+    "winston": "^3.13.1",
     "winston-syslog": "^2.7.0"
   },
   "devDependencies": {
